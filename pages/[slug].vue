@@ -1,7 +1,50 @@
 <template>
 
     <div class="container-fluid">
-        <Header></Header>
+        <nav class="navbar navbar-expand-lg">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+        Best Sim Cards
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Cities
+            
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li class="dropdown-item" v-for="city in cities" :key="city"><a href="">{{city}}</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Airports
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li class="dropdown-item"><a href="#">New York - JFK</a></li>
+            <li class="dropdown-item"><a href="#">Los Angeles - LAX</a></li>
+            <li class="dropdown-item"><a href="#">Chicago - ORD</a></li>
+            <li class="dropdown-item"><a href="#">Miami - MIA</a></li>
+            <li class="dropdown-item"><a href="#">Dallas - DFW</a></li>
+            <li class="dropdown-item"><a href="#">San Francisco - SFO</a></li>
+            <li class="dropdown-item"><a href="#">Atlanta - ATL</a></li>
+            <li class="dropdown-item"><a href="#">Denver - DEN</a></li>
+            <li class="dropdown-item"><a href="#">Seattle - SEA</a></li>
+            <li class="dropdown-item"><a href="#">Washington D.C. - DCA</a></li>
+          </ul>
+        </li>
+
+      </ul>
+      </div>
+    
+  </div>
+</nav>
     </div>
 
     <div class="banner d-flex flex-column justify-content-center align-items-center">
@@ -46,7 +89,7 @@
             <div class="col-md-4">
                 <div class="position-sticky" style="top: 2rem;">
                     <div>
-                        <h4>Related posts</h4>
+                        <h4 class="text-center">Related posts</h4>
                         <ul class="list-unstyled">
                             <li v-for="(article, index) in shuffledArticles" :key="index">
                                 <a class="d-flex flex-column flex-lg-row gap-3 align-items-start align-items-lg-center py-3 link-body-emphasis text-decoration-none border-top"
@@ -80,9 +123,23 @@ const articles = ref([]);
 const shuffledArticles = ref([]);
 const shuffledCountries = ref([]);
 const { page } = useContent();
+const cities = ref([]);
 
 const { data: countries } = await useFetch('https://restcountries.com/v3.1/all?fields=name,flags')
 
+
+async function fetchCities(country) {
+  const response = await fetch('https://countriesnow.space/api/v0.1/countries/cities', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ country })
+  });
+  
+  const result = await response.json();
+  return result.data; 
+}
 
 const getCountryFlag = (countryName) => {
     for (const country of countries.value) {
@@ -100,7 +157,7 @@ onMounted(async () => {
     const countries = shuffledArticles.value.map(article => article.country);
     const uniqueCountries = [...new Set(countries)];
     shuffledCountries.value = shuffle(uniqueCountries).slice(0, 10);
-
+    cities.value = await fetchCities(page.value.country);
 
 })
 
